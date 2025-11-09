@@ -1,0 +1,20 @@
+# .gitignore
+
+# Environnement virtuel
+venv/
+.venv/
+env/
+.env
+
+# Fichiers de cache Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Fichiers de configuration IDE
+.vscode/
+.idea/
+
+# Fichiers Excel (si vous ne voulez pas partager les données sources)
+# all_Competence.xlsx

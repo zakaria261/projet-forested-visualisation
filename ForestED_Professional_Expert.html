@@ -1,0 +1,1344 @@
+<!DOCTYPE html>
+<html lang="fr" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ForestED Professional - Expert Dashboard</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Plotly -->
+    <script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    
+    <!-- Lucide Icons (CDN) -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <style>
+        * { font-family: 'Inter', system-ui, -apple-system, sans-serif; }
+        
+        /* shadcn/ui inspired design system */
+        :root {
+            --background: 0 0% 100%;
+            --foreground: 222.2 84% 4.9%;
+            --card: 0 0% 100%;
+            --card-foreground: 222.2 84% 4.9%;
+            --popover: 0 0% 100%;
+            --popover-foreground: 222.2 84% 4.9%;
+            --primary: 221.2 83.2% 53.3%;
+            --primary-foreground: 210 40% 98%;
+            --secondary: 210 40% 96.1%;
+            --secondary-foreground: 222.2 47.4% 11.2%;
+            --muted: 210 40% 96.1%;
+            --muted-foreground: 215.4 16.3% 46.9%;
+            --accent: 210 40% 96.1%;
+            --accent-foreground: 222.2 47.4% 11.2%;
+            --destructive: 0 84.2% 60.2%;
+            --destructive-foreground: 210 40% 98%;
+            --border: 214.3 31.8% 91.4%;
+            --input: 214.3 31.8% 91.4%;
+            --ring: 221.2 83.2% 53.3%;
+            --radius: 0.5rem;
+        }
+        
+        /* Animations professionnelles */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        @keyframes slideIn {
+            from { transform: translateX(-20px); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        
+        .animate-fade-in { animation: fadeIn 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
+        .animate-slide-in { animation: slideIn 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+        .animate-pulse-subtle { animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
+        
+        /* shadcn/ui card styling */
+        .card {
+            background-color: white;
+            border-radius: var(--radius);
+            border: 1px solid hsl(var(--border));
+            box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .card:hover {
+            box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+            transform: translateY(-2px);
+        }
+        
+        .card-active {
+            border-color: hsl(var(--primary));
+            box-shadow: 0 0 0 2px hsl(var(--primary) / 0.2);
+        }
+        
+        /* shadcn/ui button styling */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: var(--radius);
+            font-size: 0.875rem;
+            font-weight: 500;
+            transition: all 0.2s;
+            cursor: pointer;
+            padding: 0.5rem 1rem;
+        }
+        
+        .btn-primary {
+            background-color: hsl(var(--primary));
+            color: hsl(var(--primary-foreground));
+        }
+        
+        .btn-primary:hover {
+            background-color: hsl(var(--primary) / 0.9);
+        }
+        
+        .btn-secondary {
+            background-color: hsl(var(--secondary));
+            color: hsl(var(--secondary-foreground));
+        }
+        
+        .btn-secondary:hover {
+            background-color: hsl(var(--secondary) / 0.8);
+        }
+        
+        .btn-outline {
+            border: 1px solid hsl(var(--border));
+            background-color: transparent;
+        }
+        
+        .btn-outline:hover {
+            background-color: hsl(var(--accent));
+        }
+        
+        /* Tabs styling (shadcn inspired) */
+        .tabs-list {
+            display: inline-flex;
+            height: 2.5rem;
+            align-items: center;
+            justify-content: center;
+            border-radius: var(--radius);
+            background-color: hsl(var(--muted));
+            padding: 0.25rem;
+        }
+        
+        .tab-trigger {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            white-space: nowrap;
+            border-radius: calc(var(--radius) - 0.125rem);
+            padding: 0.375rem 0.75rem;
+            font-size: 0.875rem;
+            font-weight: 500;
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+        
+        .tab-trigger:hover {
+            background-color: hsl(var(--accent));
+        }
+        
+        .tab-trigger-active {
+            background-color: white;
+            box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1);
+        }
+        
+        /* Badge styling */
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            border-radius: calc(var(--radius) - 0.125rem);
+            padding: 0.125rem 0.625rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+        
+        .badge-default {
+            background-color: hsl(var(--primary));
+            color: hsl(var(--primary-foreground));
+        }
+        
+        .badge-secondary {
+            background-color: hsl(var(--secondary));
+            color: hsl(var(--secondary-foreground));
+        }
+        
+        .badge-outline {
+            border: 1px solid hsl(var(--border));
+            background-color: transparent;
+        }
+        
+        /* Alert styling */
+        .alert {
+            position: relative;
+            width: 100%;
+            border-radius: var(--radius);
+            border: 1px solid hsl(var(--border));
+            padding: 1rem;
+            background-color: white;
+        }
+        
+        .alert-info {
+            border-left: 4px solid hsl(var(--primary));
+            background-color: hsl(var(--primary) / 0.05);
+        }
+        
+        .alert-warning {
+            border-left: 4px solid hsl(38 92% 50%);
+            background-color: hsl(38 92% 50% / 0.05);
+        }
+        
+        .alert-success {
+            border-left: 4px solid hsl(142 76% 36%);
+            background-color: hsl(142 76% 36% / 0.05);
+        }
+        
+        /* Slider styling */
+        .slider {
+            -webkit-appearance: none;
+            width: 100%;
+            height: 4px;
+            border-radius: 2px;
+            background: hsl(var(--secondary));
+            outline: none;
+        }
+        
+        .slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: hsl(var(--primary));
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .slider::-webkit-slider-thumb:hover {
+            transform: scale(1.2);
+        }
+        
+        /* Synchronized highlight effect */
+        .highlight-sync {
+            animation: highlightPulse 0.5s ease-in-out;
+        }
+        
+        @keyframes highlightPulse {
+            0% { box-shadow: 0 0 0 0 hsl(var(--primary) / 0.4); }
+            70% { box-shadow: 0 0 0 10px hsl(var(--primary) / 0); }
+            100% { box-shadow: 0 0 0 0 hsl(var(--primary) / 0); }
+        }
+        
+        /* Breadcrumb styling */
+        .breadcrumb {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.875rem;
+            color: hsl(var(--muted-foreground));
+        }
+        
+        .breadcrumb-active {
+            color: hsl(var(--primary));
+            font-weight: 600;
+        }
+        
+        /* Select styling */
+        .select {
+            padding: 0.5rem 0.75rem;
+            border: 1px solid hsl(var(--border));
+            border-radius: var(--radius);
+            background-color: white;
+            font-size: 0.875rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .select:hover {
+            border-color: hsl(var(--primary));
+        }
+        
+        .select:focus {
+            outline: none;
+            border-color: hsl(var(--primary));
+            box-shadow: 0 0 0 2px hsl(var(--ring) / 0.2);
+        }
+    </style>
+</head>
+<body class="h-full bg-gradient-to-br from-slate-50 to-slate-100">
+    
+    <!-- Header with gradient -->
+    <header class="bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-xl border-b">
+        <div class="container mx-auto px-6 py-6">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center gap-4">
+                    <div class="w-12 h-12 bg-white/20 rounded-lg flex items-center justify-center backdrop-blur">
+                        <i data-lucide="book-open" class="w-6 h-6"></i>
+                    </div>
+                    <div>
+                        <h1 class="text-3xl font-bold">ForestED Professional</h1>
+                        <p class="text-blue-100 text-sm mt-1">Visualisation Intelligente de Curriculum</p>
+                    </div>
+                </div>
+                <div class="flex gap-3">
+                    <button class="btn btn-secondary text-slate-700">
+                        <i data-lucide="download" class="w-4 h-4 mr-2"></i>
+                        Exporter
+                    </button>
+                    <button class="btn btn-outline text-white border-white/20 hover:bg-white/10">
+                        <i data-lucide="settings" class="w-4 h-4 mr-2"></i>
+                        Paramètres
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="container mx-auto px-6 py-8">
+        
+        <!-- Story Progress Alert -->
+        <div id="story-alert" class="alert alert-info mb-6 animate-fade-in">
+            <div class="flex items-start gap-3">
+                <i data-lucide="info" class="w-5 h-5 mt-0.5 text-blue-600"></i>
+                <div class="flex-1">
+                    <h3 class="font-semibold text-slate-900 flex items-center gap-2">
+                        <span id="story-title">Étape 1 sur 3 - Découvrez votre parcours</span>
+                        <span class="badge badge-default">Vision globale</span>
+                    </h3>
+                    <p class="text-slate-600 text-sm mt-1" id="story-description">
+                        Commençons par visualiser l'évolution de vos compétences à travers les semestres
+                    </p>
+                    <div class="flex gap-2 mt-3">
+                        <button onclick="previousStep()" class="btn btn-outline btn-sm text-xs">
+                            <i data-lucide="chevron-left" class="w-3 h-3"></i>
+                        </button>
+                        <button onclick="nextStep()" class="btn btn-primary btn-sm text-xs">
+                            Suivant
+                            <i data-lucide="chevron-right" class="w-3 h-3 ml-1"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Stats Cards with synchronized interaction -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+            <div class="card cursor-pointer animate-fade-in" onclick="focusOnStat('semesters')" id="stat-semesters">
+                <div class="p-6">
+                    <div class="flex items-center justify-between mb-3">
+                        <h3 class="text-sm font-medium text-slate-600">Semestres</h3>
+                        <div class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
+                            <i data-lucide="calendar" class="w-5 h-5 text-blue-600"></i>
+                        </div>
+                    </div>
+                    <div class="text-3xl font-bold text-slate-900">6</div>
+                    <p class="text-xs text-slate-500 mt-2">De S5 à S10</p>
+                    <div class="mt-3 h-1 bg-blue-100 rounded-full overflow-hidden">
+                        <div class="h-full bg-blue-600 rounded-full" style="width: 100%"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card cursor-pointer animate-fade-in" style="animation-delay: 0.1s" onclick="focusOnStat('competences')" id="stat-competences">
+                <div class="p-6">
+                    <div class="flex items-center justify-between mb-3">
+                        <h3 class="text-sm font-medium text-slate-600">Compétences</h3>
+                        <div class="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
+                            <i data-lucide="target" class="w-5 h-5 text-green-600"></i>
+                        </div>
+                    </div>
+                    <div class="text-3xl font-bold text-green-600">48</div>
+                    <p class="text-xs text-green-600 flex items-center gap-1 mt-1">
+                        <i data-lucide="trending-up" class="w-3 h-3"></i>
+                        +12% vs semestre précédent
+                    </p>
+                    <p class="text-xs text-slate-500 mt-1">À maîtriser</p>
+                </div>
+            </div>
+
+            <div class="card cursor-pointer animate-fade-in" style="animation-delay: 0.2s" onclick="focusOnStat('modules')" id="stat-modules">
+                <div class="p-6">
+                    <div class="flex items-center justify-between mb-3">
+                        <h3 class="text-sm font-medium text-slate-600">Modules</h3>
+                        <div class="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
+                            <i data-lucide="layers" class="w-5 h-5 text-purple-600"></i>
+                        </div>
+                    </div>
+                    <div class="text-3xl font-bold text-purple-600">32</div>
+                    <p class="text-xs text-slate-500 mt-2">Dans le curriculum</p>
+                </div>
+            </div>
+
+            <div class="card cursor-pointer animate-fade-in card-active" style="animation-delay: 0.3s" onclick="focusOnStat('charge')" id="stat-charge">
+                <div class="p-6">
+                    <div class="flex items-center justify-between mb-3">
+                        <h3 class="text-sm font-medium text-slate-600">Charge maximale</h3>
+                        <div class="w-10 h-10 bg-orange-100 rounded-lg flex items-center justify-center animate-pulse-subtle">
+                            <i data-lucide="flame" class="w-5 h-5 text-orange-600"></i>
+                        </div>
+                    </div>
+                    <div class="text-3xl font-bold text-orange-600">S8</div>
+                    <p class="text-xs text-orange-600 font-semibold mt-2">⚠️ 20 compétences uniques</p>
+                    <span class="badge badge-default mt-2 text-xs">Attention requise</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tabs Navigation (shadcn style) -->
+        <div class="card mb-6 animate-slide-in">
+            <div class="p-1">
+                <div class="tabs-list">
+                    <button class="tab-trigger tab-trigger-active" onclick="switchTab('roadmap')" id="tab-roadmap">
+                        <i data-lucide="calendar" class="w-4 h-4 mr-2"></i>
+                        Feuille de Route
+                    </button>
+                    <button class="tab-trigger" onclick="switchTab('workload')" id="tab-workload">
+                        <i data-lucide="zap" class="w-4 h-4 mr-2"></i>
+                        Charge
+                    </button>
+                    <button class="tab-trigger" onclick="switchTab('balance')" id="tab-balance">
+                        <i data-lucide="target" class="w-4 h-4 mr-2"></i>
+                        Équilibre
+                    </button>
+                    <button class="tab-trigger" onclick="switchTab('critical')" id="tab-critical">
+                        <i data-lucide="flame" class="w-4 h-4 mr-2"></i>
+                        Critiques
+                    </button>
+                    <button class="tab-trigger" onclick="switchTab('matrix')" id="tab-matrix">
+                        <i data-lucide="grid" class="w-4 h-4 mr-2"></i>
+                        Matrice
+                    </button>
+                    <button class="tab-trigger" onclick="switchTab('hierarchy')" id="tab-hierarchy">
+                        <i data-lucide="network" class="w-4 h-4 mr-2"></i>
+                        Hiérarchie
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab Content -->
+        <div class="card p-6 animate-fade-in">
+            
+            <!-- Roadmap Tab -->
+            <div id="content-roadmap" class="tab-content">
+                <div class="flex items-center justify-between mb-6">
+                    <div>
+                        <h2 class="text-2xl font-bold text-slate-900 flex items-center gap-2">
+                            <i data-lucide="calendar" class="w-6 h-6 text-blue-600"></i>
+                            Votre Feuille de Route Personnelle
+                        </h2>
+                        <p class="text-slate-600 mt-1 text-sm">
+                            Cliquez sur une case pour explorer en profondeur • 
+                            <span class="text-blue-600 font-medium" id="drill-level">Niveau 0 : Vue d'ensemble</span>
+                        </p>
+                    </div>
+                    <div class="flex gap-2">
+                        <button onclick="drillUp()" class="btn btn-outline" id="btn-drill-up" style="display:none;">
+                            <i data-lucide="arrow-left" class="w-4 h-4 mr-2"></i>
+                            Retour
+                        </button>
+                        <button onclick="resetAll()" class="btn btn-secondary">
+                            <i data-lucide="refresh-cw" class="w-4 h-4 mr-2"></i>
+                            Réinitialiser
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Breadcrumb -->
+                <div class="breadcrumb mb-4">
+                    <span class="breadcrumb-active cursor-pointer" onclick="drillTo(0)" id="breadcrumb-0">Vue d'ensemble</span>
+                    <i data-lucide="chevron-right" class="w-4 h-4" id="breadcrumb-sep-1" style="display:none;"></i>
+                    <span class="cursor-pointer" onclick="drillTo(1)" id="breadcrumb-1" style="display:none;"></span>
+                    <i data-lucide="chevron-right" class="w-4 h-4" id="breadcrumb-sep-2" style="display:none;"></i>
+                    <span class="cursor-pointer" id="breadcrumb-2" style="display:none;"></span>
+                </div>
+
+                <div id="roadmap-plot" style="width:100%;height:600px;"></div>
+
+                <!-- Legend -->
+                <div class="mt-6 p-4 bg-slate-50 rounded-lg border border-slate-200">
+                    <h4 class="text-sm font-semibold mb-3 text-slate-900">Niveaux de maîtrise</h4>
+                    <div class="grid grid-cols-4 gap-4">
+                        <div class="flex items-center gap-3 cursor-pointer hover:bg-white p-2 rounded transition-colors" onclick="filterByLevel('N')">
+                            <div class="w-4 h-4 rounded-full" style="background-color: #93c5fd;"></div>
+                            <div>
+                                <div class="text-sm font-medium text-slate-900">Novice</div>
+                                <div class="text-xs text-slate-500">Introduction</div>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-3 cursor-pointer hover:bg-white p-2 rounded transition-colors" onclick="filterByLevel('A')">
+                            <div class="w-4 h-4 rounded-full" style="background-color: #60a5fa;"></div>
+                            <div>
+                                <div class="text-sm font-medium text-slate-900">Apprenti</div>
+                                <div class="text-xs text-slate-500">Développement</div>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-3 cursor-pointer hover:bg-white p-2 rounded transition-colors" onclick="filterByLevel('M')">
+                            <div class="w-4 h-4 rounded-full" style="background-color: #2563eb;"></div>
+                            <div>
+                                <div class="text-sm font-medium text-slate-900">Maître</div>
+                                <div class="text-xs text-slate-500">Maîtrise</div>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-3 cursor-pointer hover:bg-white p-2 rounded transition-colors" onclick="filterByLevel('E')">
+                            <div class="w-4 h-4 rounded-full" style="background-color: #1e40af;"></div>
+                            <div>
+                                <div class="text-sm font-medium text-slate-900">Expert</div>
+                                <div class="text-xs text-slate-500">Excellence</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Workload Tab -->
+            <div id="content-workload" class="tab-content hidden">
+                <div class="flex items-center justify-between mb-6">
+                    <div>
+                        <h2 class="text-2xl font-bold text-slate-900 flex items-center gap-2">
+                            <i data-lucide="zap" class="w-6 h-6 text-orange-600"></i>
+                            Prédicteur de Charge de Travail
+                        </h2>
+                        <p class="text-slate-600 mt-1 text-sm">Anticipez les semestres chargés et organisez-vous</p>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <span class="text-sm text-slate-600">Mode d'affichage :</span>
+                        <select class="select" onchange="toggleWorkloadMode(this.value)">
+                            <option value="stacked">Empilé</option>
+                            <option value="grouped">Groupé</option>
+                        </select>
+                    </div>
+                </div>
+                <div id="workload-plot" style="width:100%;height:500px;"></div>
+                
+                <!-- Smart Alerts -->
+                <div class="mt-6 space-y-3">
+                    <div class="alert alert-warning">
+                        <div class="flex items-start gap-3">
+                            <i data-lucide="alert-triangle" class="w-5 h-5 text-orange-600"></i>
+                            <div>
+                                <h4 class="font-semibold text-slate-900">⚠️ Semestre 8 très chargé</h4>
+                                <p class="text-sm text-slate-600 mt-1">20 compétences uniques à maîtriser - Commencez la préparation dès S7</p>
+                                <button class="btn btn-outline btn-sm mt-2 text-xs">
+                                    <i data-lucide="calendar-plus" class="w-3 h-3 mr-1"></i>
+                                    Planifier S8
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="alert alert-success">
+                        <div class="flex items-start gap-3">
+                            <i data-lucide="check-circle" class="w-5 h-5 text-green-600"></i>
+                            <div>
+                                <h4 class="font-semibold text-slate-900">✓ Semestre 5 bien équilibré</h4>
+                                <p class="text-sm text-slate-600 mt-1">Charge de travail modérée - Idéal pour s'adapter</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Balance Tab -->
+            <div id="content-balance" class="tab-content hidden">
+                <div class="mb-6">
+                    <h2 class="text-2xl font-bold text-slate-900 flex items-center gap-2">
+                        <i data-lucide="target" class="w-6 h-6 text-green-600"></i>
+                        Équilibre des Compétences
+                    </h2>
+                    <p class="text-slate-600 mt-1 text-sm">Un cercle régulier indique une formation équilibrée</p>
+                </div>
+                <div id="radar-plot" style="width:100%;height:500px;"></div>
+                
+                <div class="mt-6 p-4 bg-slate-50 rounded-lg border border-slate-200">
+                    <h4 class="text-sm font-semibold mb-3 text-slate-900 flex items-center gap-2">
+                        <i data-lucide="sparkles" class="w-4 h-4"></i>
+                        Analyse Automatique
+                    </h4>
+                    <div class="space-y-2 text-sm">
+                        <div class="flex items-start gap-2">
+                            <i data-lucide="check" class="w-4 h-4 text-green-600 mt-0.5"></i>
+                            <span class="text-slate-700">Forte concentration en TC-3 (18 occurrences) - Atout majeur</span>
+                        </div>
+                        <div class="flex items-start gap-2">
+                            <i data-lucide="check" class="w-4 h-4 text-green-600 mt-0.5"></i>
+                            <span class="text-slate-700">Équilibre satisfaisant entre TC et IDU (55/45%)</span>
+                        </div>
+                        <div class="flex items-start gap-2">
+                            <i data-lucide="info" class="w-4 h-4 text-blue-600 mt-0.5"></i>
+                            <span class="text-slate-700">TC-4 légèrement sous-représenté - Opportunité d'approfondissement</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Critical Tab -->
+            <div id="content-critical" class="tab-content hidden">
+                <div class="mb-6">
+                    <h2 class="text-2xl font-bold text-slate-900 flex items-center gap-2">
+                        <i data-lucide="flame" class="w-6 h-6 text-red-600"></i>
+                        Compétences Critiques
+                    </h2>
+                    <p class="text-slate-600 mt-1 text-sm">Top 15 des compétences les plus fréquentes - À maîtriser absolument</p>
+                </div>
+                <div id="critical-plot" style="width:100%;height:700px;"></div>
+            </div>
+
+            <!-- Matrix Tab -->
+            <div id="content-matrix" class="tab-content hidden">
+                <div class="mb-6">
+                    <h2 class="text-2xl font-bold text-slate-900 flex items-center gap-2">
+                        <i data-lucide="grid" class="w-6 h-6 text-purple-600"></i>
+                        Carte Module-Compétence
+                    </h2>
+                    <p class="text-slate-600 mt-1 text-sm">Quel module enseigne quelle compétence ?</p>
+                </div>
+                <div id="matrix-plot" style="width:100%;height:800px;"></div>
+            </div>
+
+            <!-- Hierarchy Tab -->
+            <div id="content-hierarchy" class="tab-content hidden">
+                <div class="mb-6">
+                    <h2 class="text-2xl font-bold text-slate-900 flex items-center gap-2">
+                        <i data-lucide="network" class="w-6 h-6 text-indigo-600"></i>
+                        Vue Hiérarchique
+                    </h2>
+                    <p class="text-slate-600 mt-1 text-sm">Organisation du curriculum : Semestre → UE → Modules → Compétences</p>
+                </div>
+                <div id="sunburst-plot" style="width:100%;height:800px;"></div>
+            </div>
+
+        </div>
+
+        <!-- Global Filters Panel -->
+        <div class="card p-6 mt-8 animate-fade-in">
+            <div class="flex items-center justify-between mb-6">
+                <h3 class="text-lg font-bold text-slate-900 flex items-center gap-2">
+                    <i data-lucide="filter" class="w-5 h-5 text-blue-600"></i>
+                    Filtres Globaux (synchronisés)
+                </h3>
+                <span class="badge badge-secondary text-xs" id="sync-indicator" style="display:none;">
+                    <i data-lucide="refresh-cw" class="w-3 h-3 mr-1"></i>
+                    Synchronisation active
+                </span>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <!-- Period Filter -->
+                <div>
+                    <label class="text-sm font-medium mb-3 block text-slate-700">Période temporelle</label>
+                    <input type="range" min="5" max="10" value="5" class="slider" id="period-slider" 
+                           oninput="updatePeriodFilter(this.value)">
+                    <div class="flex justify-between text-xs text-slate-500 mt-2">
+                        <span>S5</span>
+                        <span id="period-value" class="font-medium text-blue-600">S5 → S10</span>
+                        <span>S10</span>
+                    </div>
+                </div>
+                
+                <!-- Category Filter -->
+                <div>
+                    <label class="text-sm font-medium mb-3 block text-slate-700">Catégorie de compétence</label>
+                    <select class="select w-full" id="category-select" onchange="updateCategoryFilter(this.value)">
+                        <option value="ALL">Toutes les compétences</option>
+                        <option value="TC">Techniques (TC)</option>
+                        <option value="IDU">Interdisciplinaires (IDU)</option>
+                    </select>
+                    <p class="text-xs text-slate-500 mt-2">
+                        <span id="category-count">48 compétences</span> affichées
+                    </p>
+                </div>
+                
+                <!-- Level Filter -->
+                <div>
+                    <label class="text-sm font-medium mb-3 block text-slate-700">Niveau de maîtrise</label>
+                    <div class="flex flex-wrap gap-2">
+                        <button class="badge badge-outline cursor-pointer hover:bg-blue-100 transition-colors" 
+                                onclick="toggleLevelFilter('N')" id="level-N">
+                            Novice
+                        </button>
+                        <button class="badge badge-outline cursor-pointer hover:bg-blue-100 transition-colors" 
+                                onclick="toggleLevelFilter('A')" id="level-A">
+                            Apprenti
+                        </button>
+                        <button class="badge badge-outline cursor-pointer hover:bg-blue-100 transition-colors" 
+                                onclick="toggleLevelFilter('M')" id="level-M">
+                            Maître
+                        </button>
+                        <button class="badge badge-outline cursor-pointer hover:bg-blue-100 transition-colors" 
+                                onclick="toggleLevelFilter('E')" id="level-E">
+                            Expert
+                        </button>
+                    </div>
+                    <p class="text-xs text-slate-500 mt-3">Cliquez pour filtrer par niveau</p>
+                </div>
+            </div>
+            
+            <div class="flex justify-between items-center mt-6 pt-6 border-t border-slate-200">
+                <div class="text-sm text-slate-600">
+                    <i data-lucide="activity" class="w-4 h-4 inline mr-1"></i>
+                    <span id="filter-status">Aucun filtre actif</span>
+                </div>
+                <button onclick="resetFilters()" class="btn btn-outline">
+                    <i data-lucide="x" class="w-4 h-4 mr-2"></i>
+                    Réinitialiser les filtres
+                </button>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-slate-900 text-slate-300 mt-16">
+        <div class="container mx-auto px-6 py-8">
+            <div class="text-center">
+                <p class="text-sm">ForestED Professional - Visualisation Intelligente de Curriculum</p>
+                <p class="text-xs text-slate-500 mt-2">
+                    Conçu avec shadcn/ui design system • Plotly.js • Tailwind CSS
+                </p>
+                <div class="flex justify-center gap-4 mt-4">
+                    <span class="badge badge-outline text-xs">React-inspired</span>
+                    <span class="badge badge-outline text-xs">Enterprise-grade</span>
+                    <span class="badge badge-outline text-xs">Fully Interactive</span>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Initialize Lucide icons
+        lucide.createIcons();
+        
+        // Global State Management (synchronized)
+        const appState = {
+            currentTab: 'roadmap',
+            drillLevel: 0,
+            selectedSemester: null,
+            selectedCompetency: null,
+            selectedLevel: null,
+            storyStep: 1,
+            filters: {
+                period: [5, 10],
+                category: 'ALL',
+                levels: []
+            }
+        };
+        
+        // Mock Data (replace with real data)
+        const mockData = {
+            competencies: ['TC-1.1', 'TC-1.2', 'TC-2.1', 'TC-2.2', 'TC-3.1', 'IDU-1.1', 'IDU-1.2', 'IDU-2.1'],
+            semesters: ['S5', 'S6', 'S7', 'S8', 'S9', 'S10'],
+            matrix: [
+                [1, 2, 2, 3, 3, 4],
+                [1, 1, 2, 3, 4, 4],
+                [2, 2, 3, 3, 4, 4],
+                [1, 2, 3, 3, 4, 4],
+                [2, 3, 3, 4, 4, 4],
+                [1, 1, 2, 2, 3, 3],
+                [1, 2, 2, 3, 3, 4],
+                [2, 2, 3, 3, 4, 4]
+            ]
+        };
+        
+        // Story Steps
+        const storySteps = {
+            1: {
+                title: "Étape 1 sur 3 - Découvrez votre parcours",
+                description: "Commençons par visualiser l'évolution de vos compétences à travers les semestres",
+                tab: "roadmap"
+            },
+            2: {
+                title: "Étape 2 sur 3 - Anticipez la charge",
+                description: "Identifiez les semestres qui nécessiteront le plus d'efforts et d'organisation",
+                tab: "workload"
+            },
+            3: {
+                title: "Étape 3 sur 3 - Vérifiez l'équilibre",
+                description: "Assurez-vous que votre formation est bien équilibrée entre tous les domaines",
+                tab: "balance"
+            }
+        };
+        
+        // Visualizations Creation
+        function createRoadmap() {
+            const trace = {
+                z: mockData.matrix,
+                x: mockData.semesters,
+                y: mockData.competencies,
+                type: 'heatmap',
+                colorscale: [
+                    [0, '#93c5fd'],
+                    [0.33, '#60a5fa'],
+                    [0.66, '#2563eb'],
+                    [1, '#1e40af']
+                ],
+                hoverongaps: false,
+                hovertemplate: '<b>%{y}</b><br>%{x}<br>Niveau: %{z:.1f}<extra></extra>',
+                colorbar: {
+                    title: { text: 'Niveau', side: 'right' },
+                    tickvals: [1, 2, 3, 4],
+                    ticktext: ['Novice', 'Apprenti', 'Maître', 'Expert']
+                }
+            };
+
+            const layout = {
+                title: '',
+                xaxis: { title: 'Semestre', side: 'bottom' },
+                yaxis: { title: 'Compétence', automargin: true },
+                margin: { l: 100, r: 100, t: 20, b: 80 },
+                plot_bgcolor: '#fafafa',
+                paper_bgcolor: '#ffffff',
+                font: { family: 'Inter, sans-serif' }
+            };
+
+            Plotly.newPlot('roadmap-plot', [trace], layout, {
+                displayModeBar: true, 
+                responsive: true,
+                modeBarButtonsToRemove: ['lasso2d', 'select2d']
+            });
+            
+            // Add click event for drill-down
+            document.getElementById('roadmap-plot').on('plotly_click', handleRoadmapClick);
+        }
+        
+        function createWorkload(mode = 'stacked') {
+            const semesters = ['S5', 'S6', 'S7', 'S8', 'S9', 'S10'];
+            
+            const traces = [
+                {
+                    name: 'Expert',
+                    x: semesters,
+                    y: [0, 2, 3, 5, 8, 10],
+                    type: 'bar',
+                    marker: { color: '#1e40af' },
+                    hovertemplate: 'Expert: %{y} objectifs<extra></extra>'
+                },
+                {
+                    name: 'Maître',
+                    x: semesters,
+                    y: [3, 5, 8, 12, 10, 8],
+                    type: 'bar',
+                    marker: { color: '#2563eb' },
+                    hovertemplate: 'Maître: %{y} objectifs<extra></extra>'
+                },
+                {
+                    name: 'Apprenti',
+                    x: semesters,
+                    y: [8, 10, 12, 10, 8, 5],
+                    type: 'bar',
+                    marker: { color: '#60a5fa' },
+                    hovertemplate: 'Apprenti: %{y} objectifs<extra></extra>'
+                },
+                {
+                    name: 'Novice',
+                    x: semesters,
+                    y: [5, 3, 2, 1, 0, 0],
+                    type: 'bar',
+                    marker: { color: '#93c5fd' },
+                    hovertemplate: 'Novice: %{y} objectifs<extra></extra>'
+                },
+                {
+                    name: 'Compétences uniques',
+                    x: semesters,
+                    y: [12, 15, 18, 20, 18, 15],
+                    type: 'scatter',
+                    mode: 'lines+markers',
+                    yaxis: 'y2',
+                    line: { color: '#f59e0b', width: 3 },
+                    marker: { size: 10, symbol: 'diamond' },
+                    hovertemplate: 'Compétences: %{y}<extra></extra>'
+                }
+            ];
+
+            const layout = {
+                barmode: mode,
+                title: '',
+                xaxis: { title: 'Semestre' },
+                yaxis: { title: "Nombre d'objectifs" },
+                yaxis2: {
+                    title: 'Compétences uniques',
+                    overlaying: 'y',
+                    side: 'right'
+                },
+                legend: { orientation: 'h', y: -0.2 },
+                hovermode: 'x unified',
+                plot_bgcolor: '#fafafa',
+                paper_bgcolor: '#ffffff',
+                font: { family: 'Inter, sans-serif' }
+            };
+
+            Plotly.newPlot('workload-plot', traces, layout, {
+                displayModeBar: true, 
+                responsive: true
+            });
+            
+            // Synchronization on click
+            document.getElementById('workload-plot').on('plotly_click', (data) => {
+                const semester = data.points[0].x;
+                syncVisualization('workload', { type: 'semester', value: semester });
+            });
+        }
+        
+        function createRadar() {
+            const trace = {
+                type: 'scatterpolar',
+                r: [15, 12, 18, 10, 14, 16, 12, 11],
+                theta: ['TC-1', 'TC-2', 'TC-3', 'TC-4', 'IDU-1', 'IDU-2', 'IDU-3', 'IDU-4'],
+                fill: 'toself',
+                fillcolor: 'rgba(59, 130, 246, 0.25)',
+                line: { color: '#3b82f6', width: 2 },
+                marker: { size: 8 },
+                hovertemplate: '<b>%{theta}</b><br>Score: %{r}<extra></extra>'
+            };
+
+            const layout = {
+                polar: {
+                    radialaxis: {
+                        visible: true,
+                        range: [0, 20],
+                        tickfont: { size: 10 }
+                    },
+                    angularaxis: {
+                        tickfont: { size: 12 }
+                    }
+                },
+                title: '',
+                showlegend: false,
+                paper_bgcolor: '#ffffff',
+                font: { family: 'Inter, sans-serif' }
+            };
+
+            Plotly.newPlot('radar-plot', [trace], layout, {
+                displayModeBar: true, 
+                responsive: true
+            });
+            
+            document.getElementById('radar-plot').on('plotly_click', (data) => {
+                const category = data.points[0].theta;
+                syncVisualization('radar', { type: 'category', value: category });
+            });
+        }
+        
+        function createCritical() {
+            const competencies = ['TC-1.1', 'TC-2.1', 'IDU-1.1', 'TC-1.2', 'TC-3.1', 'IDU-2.1', 'TC-2.2', 'IDU-1.2', 'TC-3.2', 'TC-1.3'];
+            const counts = [15, 14, 13, 12, 11, 10, 9, 8, 7, 6];
+            const levels = [3.2, 3.5, 2.8, 3.0, 3.8, 2.5, 3.3, 2.7, 3.6, 2.9];
+
+            const trace = {
+                y: competencies,
+                x: counts,
+                type: 'bar',
+                orientation: 'h',
+                marker: {
+                    color: levels,
+                    colorscale: 'RdYlGn_r',
+                    showscale: true,
+                    colorbar: {
+                        title: 'Niveau moyen',
+                        tickvals: [1, 2, 3, 4],
+                        ticktext: ['Novice', 'Apprenti', 'Maître', 'Expert']
+                    }
+                },
+                text: counts,
+                textposition: 'outside',
+                hovertemplate: '<b>%{y}</b><br>Occurrences: %{x}<br>Niveau: %{marker.color:.1f}<extra></extra>'
+            };
+
+            const layout = {
+                title: '',
+                xaxis: { title: 'Nombre d\'occurrences' },
+                yaxis: { title: 'Compétence', automargin: true },
+                margin: { l: 100, r: 100, t: 20, b: 80 },
+                plot_bgcolor: '#fafafa',
+                paper_bgcolor: '#ffffff',
+                font: { family: 'Inter, sans-serif' }
+            };
+
+            Plotly.newPlot('critical-plot', [trace], layout, {
+                displayModeBar: true, 
+                responsive: true
+            });
+        }
+        
+        function createMatrix() {
+            const modules = ['Module A', 'Module B', 'Module C', 'Module D', 'Module E'];
+            const competencies = ['TC-1.1', 'TC-1.2', 'TC-2.1', 'IDU-1.1', 'IDU-1.2'];
+            const matrix = [
+                [3, 0, 2, 1, 0],
+                [2, 3, 0, 0, 1],
+                [0, 2, 3, 2, 0],
+                [1, 0, 1, 3, 2],
+                [0, 1, 0, 2, 3]
+            ];
+            
+            const trace = {
+                z: matrix,
+                x: competencies,
+                y: modules,
+                type: 'heatmap',
+                colorscale: 'Viridis',
+                text: matrix,
+                texttemplate: '%{text}',
+                textfont: { size: 10 },
+                hovertemplate: '<b>%{y}</b><br>%{x}<br>Occurrences: %{z}<extra></extra>',
+                colorbar: { title: 'Occurrences' }
+            };
+            
+            const layout = {
+                title: '',
+                xaxis: { title: 'Compétence', side: 'bottom' },
+                yaxis: { title: 'Module', automargin: true },
+                margin: { l: 120, r: 100, t: 20, b: 100 },
+                plot_bgcolor: '#fafafa',
+                paper_bgcolor: '#ffffff',
+                font: { family: 'Inter, sans-serif' }
+            };
+            
+            Plotly.newPlot('matrix-plot', [trace], layout, {
+                displayModeBar: true, 
+                responsive: true
+            });
+        }
+        
+        function createSunburst() {
+            // Hierarchical data: Semester -> UE -> Module -> Competency
+            const labels = [
+                'S5', 'S6', 'S7', 'S8',
+                'UE1-S5', 'UE2-S5', 'UE1-S6', 'UE2-S6',
+                'Module A', 'Module B', 'Module C', 'Module D',
+                'TC-1.1', 'TC-1.2', 'TC-2.1', 'IDU-1.1'
+            ];
+            
+            const parents = [
+                '', '', '', '',
+                'S5', 'S5', 'S6', 'S6',
+                'UE1-S5', 'UE1-S5', 'UE2-S5', 'UE1-S6',
+                'Module A', 'Module A', 'Module B', 'Module C'
+            ];
+            
+            const values = [
+                100, 100, 100, 100,
+                50, 50, 50, 50,
+                25, 25, 25, 25,
+                10, 10, 10, 10
+            ];
+            
+            const trace = {
+                type: 'sunburst',
+                labels: labels,
+                parents: parents,
+                values: values,
+                marker: {
+                    colorscale: 'Rainbow',
+                    line: { width: 2 }
+                },
+                branchvalues: 'total',
+                hovertemplate: '<b>%{label}</b><br>Valeur: %{value}<extra></extra>'
+            };
+            
+            const layout = {
+                title: '',
+                margin: { l: 0, r: 0, t: 0, b: 0 },
+                paper_bgcolor: '#ffffff',
+                font: { family: 'Inter, sans-serif' }
+            };
+            
+            Plotly.newPlot('sunburst-plot', [trace], layout, {
+                displayModeBar: true, 
+                responsive: true
+            });
+        }
+        
+        // Tab Management
+        function switchTab(tabName) {
+            // Update tab triggers
+            document.querySelectorAll('.tab-trigger').forEach(el => {
+                el.classList.remove('tab-trigger-active');
+            });
+            document.getElementById('tab-' + tabName).classList.add('tab-trigger-active');
+            
+            // Update tab content
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+            document.getElementById('content-' + tabName).classList.remove('hidden');
+            
+            // Create visualization if needed
+            if (tabName === 'workload' && !document.getElementById('workload-plot').data) {
+                createWorkload();
+            }
+            if (tabName === 'balance' && !document.getElementById('radar-plot').data) {
+                createRadar();
+            }
+            if (tabName === 'critical' && !document.getElementById('critical-plot').data) {
+                createCritical();
+            }
+            if (tabName === 'matrix' && !document.getElementById('matrix-plot').data) {
+                createMatrix();
+            }
+            if (tabName === 'hierarchy' && !document.getElementById('sunburst-plot').data) {
+                createSunburst();
+            }
+            
+            appState.currentTab = tabName;
+            lucide.createIcons();
+        }
+        
+        // Drill-down Management
+        function handleRoadmapClick(data) {
+            const point = data.points[0];
+            
+            if (appState.drillLevel === 0) {
+                // Drill to semester
+                appState.drillLevel = 1;
+                appState.selectedSemester = point.x;
+                updateDrillUI();
+                syncVisualization('roadmap', { type: 'semester', value: point.x });
+            } else if (appState.drillLevel === 1) {
+                // Drill to competency
+                appState.drillLevel = 2;
+                appState.selectedCompetency = point.y;
+                updateDrillUI();
+                syncVisualization('roadmap', { type: 'competency', value: point.y });
+            }
+        }
+        
+        function drillUp() {
+            if (appState.drillLevel > 0) {
+                appState.drillLevel--;
+                if (appState.drillLevel === 0) {
+                    appState.selectedSemester = null;
+                    appState.selectedCompetency = null;
+                } else if (appState.drillLevel === 1) {
+                    appState.selectedCompetency = null;
+                }
+                updateDrillUI();
+                syncVisualization('roadmap', { type: 'drill-up', level: appState.drillLevel });
+            }
+        }
+        
+        function drillTo(level) {
+            appState.drillLevel = level;
+            if (level === 0) {
+                appState.selectedSemester = null;
+                appState.selectedCompetency = null;
+            } else if (level === 1) {
+                appState.selectedCompetency = null;
+            }
+            updateDrillUI();
+        }
+        
+        function updateDrillUI() {
+            const drillLevel = appState.drillLevel;
+            
+            // Update drill level indicator
+            const levelText = drillLevel === 0 ? 'Niveau 0 : Vue d\'ensemble' :
+                            drillLevel === 1 ? `Niveau 1 : Semestre ${appState.selectedSemester}` :
+                            `Niveau 2 : ${appState.selectedCompetency}`;
+            document.getElementById('drill-level').textContent = levelText;
+            
+            // Show/hide back button
+            document.getElementById('btn-drill-up').style.display = drillLevel > 0 ? 'inline-flex' : 'none';
+            
+            // Update breadcrumb
+            document.getElementById('breadcrumb-0').classList.toggle('breadcrumb-active', drillLevel === 0);
+            
+            if (drillLevel >= 1) {
+                document.getElementById('breadcrumb-sep-1').style.display = 'block';
+                document.getElementById('breadcrumb-1').style.display = 'inline';
+                document.getElementById('breadcrumb-1').textContent = `Semestre ${appState.selectedSemester}`;
+                document.getElementById('breadcrumb-1').classList.toggle('breadcrumb-active', drillLevel === 1);
+            } else {
+                document.getElementById('breadcrumb-sep-1').style.display = 'none';
+                document.getElementById('breadcrumb-1').style.display = 'none';
+            }
+            
+            if (drillLevel >= 2) {
+                document.getElementById('breadcrumb-sep-2').style.display = 'block';
+                document.getElementById('breadcrumb-2').style.display = 'inline';
+                document.getElementById('breadcrumb-2').textContent = appState.selectedCompetency;
+                document.getElementById('breadcrumb-2').classList.add('breadcrumb-active');
+            } else {
+                document.getElementById('breadcrumb-sep-2').style.display = 'none';
+                document.getElementById('breadcrumb-2').style.display = 'none';
+            }
+            
+            lucide.createIcons();
+        }
+        
+        // Synchronization System
+        function syncVisualization(source, data) {
+            console.log('🔄 Synchronisation:', source, data);
+            document.getElementById('sync-indicator').style.display = 'inline-flex';
+            
+            // Add highlight effect
+            document.querySelectorAll('.card').forEach(el => {
+                el.classList.add('highlight-sync');
+            });
+            
+            setTimeout(() => {
+                document.querySelectorAll('.card').forEach(el => {
+                    el.classList.remove('highlight-sync');
+                });
+                document.getElementById('sync-indicator').style.display = 'none';
+            }, 500);
+            
+            // Update all visualizations based on sync
+            // This is where you'd implement real synchronization logic
+        }
+        
+        // Story Navigation
+        function nextStep() {
+            if (appState.storyStep < 3) {
+                appState.storyStep++;
+                updateStory();
+            }
+        }
+        
+        function previousStep() {
+            if (appState.storyStep > 1) {
+                appState.storyStep--;
+                updateStory();
+            }
+        }
+        
+        function updateStory() {
+            const step = storySteps[appState.storyStep];
+            document.getElementById('story-title').textContent = step.title;
+            document.getElementById('story-description').textContent = step.description;
+            
+            // Auto-switch to relevant tab
+            if (step.tab) {
+                switchTab(step.tab);
+            }
+        }
+        
+        // Filter Management
+        function updatePeriodFilter(value) {
+            appState.filters.period = [5, parseInt(value)];
+            document.getElementById('period-value').textContent = `S5 → S${value}`;
+            syncVisualization('filter', { type: 'period', value: appState.filters.period });
+            updateFilterStatus();
+        }
+        
+        function updateCategoryFilter(value) {
+            appState.filters.category = value;
+            syncVisualization('filter', { type: 'category', value: value });
+            updateFilterStatus();
+        }
+        
+        function toggleLevelFilter(level) {
+            const btn = document.getElementById('level-' + level);
+            const index = appState.filters.levels.indexOf(level);
+            
+            if (index > -1) {
+                appState.filters.levels.splice(index, 1);
+                btn.classList.remove('badge-default');
+                btn.classList.add('badge-outline');
+            } else {
+                appState.filters.levels.push(level);
+                btn.classList.remove('badge-outline');
+                btn.classList.add('badge-default');
+            }
+            
+            syncVisualization('filter', { type: 'level', value: appState.filters.levels });
+            updateFilterStatus();
+        }
+        
+        function filterByLevel(level) {
+            toggleLevelFilter(level);
+        }
+        
+        function updateFilterStatus() {
+            const activeFilters = [];
+            if (appState.filters.period[1] < 10) activeFilters.push('Période');
+            if (appState.filters.category !== 'ALL') activeFilters.push('Catégorie');
+            if (appState.filters.levels.length > 0) activeFilters.push('Niveau');
+            
+            const status = activeFilters.length > 0 
+                ? `${activeFilters.length} filtre(s) actif(s): ${activeFilters.join(', ')}`
+                : 'Aucun filtre actif';
+            
+            document.getElementById('filter-status').textContent = status;
+        }
+        
+        function resetFilters() {
+            appState.filters = {
+                period: [5, 10],
+                category: 'ALL',
+                levels: []
+            };
+            
+            document.getElementById('period-slider').value = 10;
+            document.getElementById('period-value').textContent = 'S5 → S10';
+            document.getElementById('category-select').value = 'ALL';
+            
+            ['N', 'A', 'M', 'E'].forEach(level => {
+                const btn = document.getElementById('level-' + level);
+                btn.classList.remove('badge-default');
+                btn.classList.add('badge-outline');
+            });
+            
+            updateFilterStatus();
+            syncVisualization('filter', { type: 'reset' });
+        }
+        
+        // Stats Card Focus
+        function focusOnStat(stat) {
+            document.querySelectorAll('.card').forEach(el => el.classList.remove('card-active'));
+            document.getElementById('stat-' + stat).classList.add('card-active');
+            
+            if (stat === 'charge') {
+                switchTab('workload');
+                syncVisualization('stat', { type: 'semester', value: 'S8' });
+            }
+        }
+        
+        // Reset All
+        function resetAll() {
+            appState.drillLevel = 0;
+            appState.selectedSemester = null;
+            appState.selectedCompetency = null;
+            updateDrillUI();
+            resetFilters();
+            createRoadmap();
+        }
+        
+        // Workload Mode Toggle
+        function toggleWorkloadMode(mode) {
+            createWorkload(mode);
+        }
+        
+        // Initialize on load
+        window.addEventListener('load', () => {
+            createRoadmap();
+            lucide.createIcons();
+            
+            // Smooth scroll
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    const target = document.querySelector(this.getAttribute('href'));
+                    if (target) {
+                        target.scrollIntoView({ behavior: 'smooth' });
+                    }
+                });
+            });
+        });
+    </script>
+
+</body>
+</html>
