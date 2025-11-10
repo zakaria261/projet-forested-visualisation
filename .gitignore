@@ -16,5 +16,3 @@ __pycache__/
 .vscode/
 .idea/
 
-# Fichiers Excel (si vous ne voulez pas partager les données sources)
-# all_Competence.xlsx
