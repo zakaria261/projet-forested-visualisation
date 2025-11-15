@@ -1391,85 +1391,112 @@ app.layout = html.Div([
 
     
     # ═══ SECTION 4: ANALYSE DÉTAILLÉE (Grid 2×2) ═══
+# ═══ SECTION 4: ANALYSE DÉTAILLÉE (Grid 2×2 symétrique) ═══
+html.Div([
+    create_section_header(
+        "Analyse Detaillee",
+        "Explorez votre curriculum en profondeur",
+        "🔍"
+    ),
+
     html.Div([
-        create_section_header(
-            "Analyse Detaillee",
-            "Explorez votre curriculum en profondeur",
-            "🔍"
-        ),
         
+        # Radar – Colonne 1 / Ligne 1
         html.Div([
             html.Div([
-                html.Div([
-                    html.Div([
-                        dcc.Graph(id='viz2-radar', config={'displayModeBar': True, 'displaylogo': False})
-                    ], className="card-content")
-                ], className="card mb-lg"),
-                
-                html.Div([
-                    html.Div([
-                        dcc.Graph(id='viz5-critical', config={'displayModeBar': True, 'displaylogo': False})
-                    ], className="card-content")
-                ], className="card")
-            ], style={'flex': 1}),
-            
+                dcc.Graph(id='viz2-radar', config={'displayModeBar': True, 'displaylogo': False})
+            ], className="card-content")
+        ], className="card", style={'width': '48%', 'marginBottom': '24px'}),
+
+        # Compétences critiques – Colonne 2 / Ligne 1
+        html.Div([
             html.Div([
-                html.Div([
-                    html.Div([
-                        dcc.Graph(id='viz3-heatmap', config={'displayModeBar': True, 'displaylogo': False})
-                    ], className="card-content")
-                ], className="card mb-lg"),
-                
-                html.Div([
-                    html.Div([
-                        dcc.Graph(id='viz4-flow', config={'displayModeBar': True, 'displaylogo': False})
-                    ], className="card-content")
-                ], className="card")
-            ], style={'flex': 1})
-        ], style={'display': 'flex', 'gap': '24px'})
-    ], className="container section"),
+                dcc.Graph(id='viz5-critical', config={'displayModeBar': True, 'displaylogo': False})
+            ], className="card-content")
+        ], className="card", style={'width': '48%', 'marginBottom': '24px'}),
+
+        # Heatmap – Colonne 1 / Ligne 2
+        html.Div([
+            html.Div([
+                dcc.Graph(id='viz3-heatmap', config={'displayModeBar': True, 'displaylogo': False})
+            ], className="card-content")
+        ], className="card", style={'width': '48%'}),
+
+        # Sankey – Colonne 2 / Ligne 2
+        html.Div([
+            html.Div([
+                dcc.Graph(id='viz4-flow', config={'displayModeBar': True, 'displaylogo': False})
+            ], className="card-content")
+        ], className="card", style={'width': '48%'})
+
+    ], style={
+        'display': 'flex',
+        'flexWrap': 'wrap',
+        'justifyContent': 'space-between',
+        'gap': '24px'
+    })
+], className="container section"),
+
     
     # ═══ SECTION 5: VISUALISATIONS AVANCÉES ═══
+# ═══ SECTION 5: VISUALISATIONS AVANCÉES (grid 2 colonnes symétriques) ═══
+html.Div([
+    create_section_header(
+        "Visualisations Avancees",
+        "Relations et hierarchies",
+        "🌐"
+    ),
+
+    # Sélecteur du mode de visualisation (placé proprement dans la section)
     html.Div([
-        create_section_header(
-            "Visualisations Avancees",
-            "Relations et hierarchies",
-            "🌐"
+        html.Label(
+            "Mode de visualisation :", 
+            style={'fontWeight': 'bold', 'marginRight': '10px'}
         ),
-        
+        dcc.RadioItems(
+            id='network-mode',
+            options=[
+                {'label': ' 3D Standard', 'value': 'standard'},
+                {'label': ' 3D Expert (Communautés)', 'value': 'advanced'}
+            ],
+            value='advanced',
+            inline=True,
+            style={'marginBottom': '20px'}
+        )
+    ], style={'marginBottom': '20px'}),
+
+    # Grille symétrique
+    html.Div([
+
+        # Sunburst — Colonne gauche
         html.Div([
             html.Div([
-                html.Div([
-                    html.Div([
-                        dcc.Graph(id='viz6-sunburst', config={'displayModeBar': True, 'displaylogo': False})
-                    ], className="card-content")
-                ], className="card")
-            ], style={'flex': 1, 'marginRight': '12px'}),
-            
+                dcc.Graph(
+                    id='viz6-sunburst',
+                    config={'displayModeBar': True, 'displaylogo': False}
+                )
+            ], className="card-content")
+        ], className="card", style={'width': '48%'}),
+
+        # Network — Colonne droite
+        html.Div([
             html.Div([
-                html.Div([
-                    html.Div([
-                        dcc.Graph(id='viz8-network', config={'displayModeBar': True, 'displaylogo': False})
-                    ], className="card-content")
-                ], className="card")
-            ], style={'flex': 1, 'marginLeft': '12px'})
-        ], style={'display': 'flex', 'gap': '24px'})
-    ], className="container section"),
-    
-    # Dans le layout, ajoutez un bouton de sélection
-html.Div([
-    html.Label("Mode de visualisation:", style={'fontWeight': 'bold', 'marginRight': '10px'}),
-    dcc.RadioItems(
-        id='network-mode',
-        options=[
-            {'label': ' 3D Standard', 'value': 'standard'},
-            {'label': ' 3D Expert (Communautés)', 'value': 'advanced'}
-        ],
-        value='advanced',
-        inline=True,
-        style={'marginBottom': '20px'}
-    )
-], style={'marginBottom': '20px'}),
+                dcc.Graph(
+                    id='viz8-network',
+                    config={'displayModeBar': True, 'displaylogo': False}
+                )
+            ], className="card-content")
+        ], className="card", style={'width': '48%'})
+
+    ], style={
+        'display': 'flex',
+        'flexWrap': 'wrap',
+        'justifyContent': 'space-between',
+        'gap': '24px'
+    })
+
+], className="container section"),
+
 
     # ═══ FOOTER ═══
     html.Div([

@@ -14,7 +14,6 @@ itsdangerous==2.2.0
 Jinja2==3.1.6
 MarkupSafe==3.0.3
 nest-asyncio==1.6.0
-networkx==3.1
 numpy==2.3.4
 openpyxl==3.1.5
 packaging==25.0
