@@ -470,6 +470,20 @@ def create_filter_section():
 # ═══════════════════════════════════════════════════════════════════
 
 def viz2_workload_radar(filtered_df):
+    if filtered_df.empty:
+        fig = go.Figure()
+        fig.add_annotation(
+            text="Aucune donnée à afficher. Veuillez ajuster vos filtres.",
+            xref="paper", yref="paper", x=0.5, y=0.5, showarrow=False,
+            font=dict(size=14, color="#94a3b8", family="Inter, sans-serif"),
+        )
+        fig.update_layout(
+            paper_bgcolor="white",
+            plot_bgcolor="white",
+            height=650,
+        )
+        return fig
+    
     semesters = sorted(filtered_df["Semestre"].unique())
     workload_data = []
     for sem in semesters:
@@ -512,6 +526,20 @@ def viz2_workload_radar(filtered_df):
     return fig
 
 def viz3_competency_heatmap(filtered_df):
+    if filtered_df.empty:
+        fig = go.Figure()
+        fig.add_annotation(
+            text="Aucune donnée à afficher. Veuillez ajuster vos filtres.",
+            xref="paper", yref="paper", x=0.5, y=0.5, showarrow=False,
+            font=dict(size=14, color="#94a3b8", family="Inter, sans-serif"),
+        )
+        fig.update_layout(
+            paper_bgcolor="white",
+            plot_bgcolor="white",
+            height=750,
+        )
+        return fig
+    
     all_comps = set()
     for comps in filtered_df["Competencies_List"]:
         all_comps.update(comps)
@@ -551,6 +579,20 @@ def viz3_competency_heatmap(filtered_df):
     return fig
 
 def viz4_learning_flow(filtered_df):
+    if filtered_df.empty:
+        fig = go.Figure()
+        fig.add_annotation(
+            text="Aucune donnée à afficher. Veuillez ajuster vos filtres.",
+            xref="paper", yref="paper", x=0.5, y=0.5, showarrow=False,
+            font=dict(size=14, color="#94a3b8", family="Inter, sans-serif"),
+        )
+        fig.update_layout(
+            paper_bgcolor="white",
+            plot_bgcolor="white",
+            height=650,
+        )
+        return fig
+    
     nodes = []
     node_dict = {}
     links = {"source": [], "target": [], "value": [], "color": []}
@@ -605,6 +647,20 @@ def viz4_learning_flow(filtered_df):
     return fig
 
 def viz5_critical_competencies(filtered_df):
+    if filtered_df.empty:
+        fig = go.Figure()
+        fig.add_annotation(
+            text="Aucune donnée à afficher. Veuillez ajuster vos filtres.",
+            xref="paper", yref="paper", x=0.5, y=0.5, showarrow=False,
+            font=dict(size=14, color="#94a3b8", family="Inter, sans-serif"),
+        )
+        fig.update_layout(
+            paper_bgcolor="white",
+            plot_bgcolor="white",
+            height=650,
+        )
+        return fig
+    
     comp_freq = {}
     comp_levels = {}
     for _, row in filtered_df.iterrows():
@@ -752,7 +808,11 @@ def viz7_statistics_dashboard(filtered_df):
 
 def viz8_network_graph_pro(filtered_df):
     """
-    Réseau 3D de compétences - version expert avec gestion d'erreurs
+    Réseau 3D de compétences - version expert contrastée
+    - Fond blanc pour le conteneur
+    - Fond noir pour le canvas 3D uniquement
+    - Liaisons orange très visibles
+    - Nœuds colorés par communautés, taille = degré
     """
     try:
         import networkx as nx
@@ -760,18 +820,14 @@ def viz8_network_graph_pro(filtered_df):
     except ImportError:
         fig = go.Figure()
         fig.add_annotation(
-            text="⚠️ NetworkX non installé<br><br>Installez avec: pip install networkx",
+            text="NetworkX non installé. Installez avec: pip install networkx",
             xref="paper", yref="paper", x=0.5, y=0.5, showarrow=False,
-            font=dict(size=16, color="#ef4444"),
-            bgcolor="rgba(254, 226, 226, 0.5)",
-            bordercolor="#ef4444",
-            borderwidth=2,
-            borderpad=20,
+            font=dict(size=14, color="#ef4444", family="Inter, sans-serif"),
         )
         fig.update_layout(
             paper_bgcolor="white",
             plot_bgcolor="white",
-            height=900,
+            height=850,
         )
         return fig
 
@@ -792,18 +848,14 @@ def viz8_network_graph_pro(filtered_df):
     if len(G.nodes) == 0:
         fig = go.Figure()
         fig.add_annotation(
-            text="ℹ️ Aucune relation de compétences trouvée<br><br>Ajustez vos filtres pour voir le réseau",
+            text="Aucune relation de compétences trouvée avec les filtres actuels.",
             xref="paper", yref="paper", x=0.5, y=0.5, showarrow=False,
-            font=dict(size=16, color="#64748b"),
-            bgcolor="rgba(241, 245, 249, 0.8)",
-            bordercolor="#cbd5e1",
-            borderwidth=2,
-            borderpad=20,
+            font=dict(size=14, color="#94a3b8", family="Inter, sans-serif"),
         )
         fig.update_layout(
             paper_bgcolor="white",
             plot_bgcolor="white",
-            height=900,
+            height=850,
         )
         return fig
 
@@ -815,11 +867,13 @@ def viz8_network_graph_pro(filtered_df):
         fig = go.Figure()
         fig.add_annotation(
             text="Le réseau filtré est vide.",
-            xref="paper", yref="paper", x=0.5, y=0.5, showarrow=False
+            xref="paper", yref="paper", x=0.5, y=0.5, showarrow=False,
+            font=dict(size=14, color="#94a3b8", family="Inter, sans-serif"),
         )
         fig.update_layout(
             paper_bgcolor="white",
-            height=900,
+            plot_bgcolor="white",
+            height=850,
         )
         return fig
 
@@ -835,13 +889,16 @@ def viz8_network_graph_pro(filtered_df):
         node_to_community = {node: 0 for node in G_sub.nodes}
         communities_list = [set(G_sub.nodes())]
 
+    # Edges : orange vif sur fond sombre
     edge_x, edge_y, edge_z = [], [], []
-    for u, v in G_sub.edges():
+    weights = []
+    for u, v, data in G_sub.edges(data=True):
         x0, y0, z0 = pos[u]
         x1, y1, z1 = pos[v]
         edge_x += [x0, x1, None]
         edge_y += [y0, y1, None]
         edge_z += [z0, z1, None]
+        weights.append(data.get("weight", 1))
 
     edge_trace = go.Scatter3d(
         x=edge_x,
@@ -880,7 +937,7 @@ def viz8_network_graph_pro(filtered_df):
             node_z.append(z)
 
             deg = degrees[n]
-            node_sizes.append(8 + 3 * deg)
+            node_sizes.append(7 + 2.8 * deg)
 
             short_label = n.split("-")[0] if "-" in n else n
             node_labels.append(short_label if deg >= threshold_label else "")
@@ -897,11 +954,11 @@ def viz8_network_graph_pro(filtered_df):
                     size=node_sizes,
                     color=community_palette[comm_id % len(community_palette)],
                     opacity=0.9,
-                    line=dict(color="white", width=1.5),
+                    line=dict(color="#020617", width=1.2),
                 ),
                 text=node_labels,
                 textposition="top center",
-                textfont=dict(size=10, color="#1e293b"),
+                textfont=dict(size=9, color="#f9fafb"),
                 hovertext=hover_texts,
                 hoverinfo="text",
                 name=f"Communauté {comm_id + 1}",
@@ -927,10 +984,10 @@ def viz8_network_graph_pro(filtered_df):
     fig = go.Figure(data=[edge_trace] + node_traces)
     fig.update_layout(
         title=dict(
-            text="🌐 Réseau 3D de compétences<br><sub>Compétences fortement liées entre les cours - Utilisez votre souris pour pivoter</sub>",
+            text="Réseau 3D de compétences<br><sub>Compétences fortement liées entre les cours</sub>",
             x=0.5,
             xanchor="center",
-            font=dict(size=20, family="Inter, sans-serif", color="#1e293b"),
+            font=dict(size=16, family="Inter, sans-serif", color="#1e293b"),
         ),
         showlegend=True,
         legend=dict(
@@ -938,30 +995,12 @@ def viz8_network_graph_pro(filtered_df):
             bgcolor="rgba(255,255,255,0.95)",
             bordercolor="#e2e8f0",
             borderwidth=1,
-            font=dict(color="#1e293b", size=11),
+            font=dict(color="#1e293b", size=10),
         ),
         scene=dict(
-            xaxis=dict(
-                showbackground=True,
-                backgroundcolor="#020617",
-                showgrid=False,
-                zeroline=False,
-                showticklabels=False
-            ),
-            yaxis=dict(
-                showbackground=True,
-                backgroundcolor="#020617",
-                showgrid=False,
-                zeroline=False,
-                showticklabels=False
-            ),
-            zaxis=dict(
-                showbackground=True,
-                backgroundcolor="#020617",
-                showgrid=False,
-                zeroline=False,
-                showticklabels=False
-            ),
+            xaxis=dict(showbackground=False, showgrid=False, zeroline=False, showticklabels=False),
+            yaxis=dict(showbackground=False, showgrid=False, zeroline=False, showticklabels=False),
+            zaxis=dict(showbackground=False, showgrid=False, zeroline=False, showticklabels=False),
             bgcolor="#020617",
             camera=dict(
                 eye=dict(x=1.7, y=1.8, z=1.2),
@@ -970,9 +1009,9 @@ def viz8_network_graph_pro(filtered_df):
         ),
         paper_bgcolor="white",
         plot_bgcolor="white",
-        height=900,
-        margin=dict(l=0, r=0, t=100, b=0),
-        font=dict(size=12, family="Inter, sans-serif"),
+        height=850,
+        margin=dict(l=0, r=0, t=80, b=0),
+        font=dict(size=11, family="Inter, sans-serif", color="#1e293b"),
         annotations=[
             dict(
                 text=stats_text,
@@ -980,11 +1019,11 @@ def viz8_network_graph_pro(filtered_df):
                 x=0.02, y=0.98,
                 showarrow=False,
                 align="left",
-                font=dict(size=11, color="#1e293b"),
+                font=dict(size=10, color="#1e293b"),
                 bgcolor="rgba(255,255,255,0.95)",
                 bordercolor="#e2e8f0",
                 borderwidth=1,
-                borderpad=8,
+                borderpad=6,
             )
         ],
     )
@@ -1164,54 +1203,73 @@ app.layout = html.Div(
                                     "Relations et hiérarchies",
                                     "Organisation globale et liens entre compétences",
                                 ),
-                                # Sunburst en pleine largeur
+                                # Grid 2 colonnes professionnel
                                 html.Div(
                                     [
-                                        dcc.Graph(
-                                            id="viz6-sunburst",
-                                            config={"displayModeBar": True, "displaylogo": False},
-                                        )
-                                    ],
-                                    className="card viz-card",
-                                    style={"marginBottom": "24px"},
-                                ),
-                                # Graphe 3D en pleine largeur - BIEN VISIBLE
-                                html.Div(
-                                    [
+                                        # SUNBURST à gauche
                                         html.Div(
                                             [
-                                                html.Span("🌐", style={"fontSize": "24px", "marginRight": "10px"}),
-                                                html.Span("Réseau 3D de compétences", style={"fontSize": "18px", "fontWeight": "600"}),
-                                            ],
-                                            style={
-                                                "padding": "16px 20px",
-                                                "background": "linear-gradient(135deg, #3b82f6, #8b5cf6)",
-                                                "color": "white",
-                                                "borderRadius": "0.6rem 0.6rem 0 0",
-                                                "display": "flex",
-                                                "alignItems": "center",
-                                            }
-                                        ),
-                                        html.Div(
-                                            [
-                                                dcc.Graph(
-                                                    id="viz8-network",
-                                                    config={
-                                                        "displayModeBar": True,
-                                                        "displaylogo": False,
-                                                        "modeBarButtonsToAdd": ['pan3d', 'zoom3d', 'orbitRotation', 'tableRotation'],
-                                                    },
+                                                html.Div(
+                                                    [
+                                                        html.Div(
+                                                            [
+                                                                html.Div("Vue hiérarchique", className="viz-header-title"),
+                                                                html.Div("Curriculum complet", className="viz-header-subtitle"),
+                                                            ],
+                                                            className="viz-header",
+                                                        ),
+                                                        html.Div(
+                                                            [
+                                                                dcc.Graph(
+                                                                    id="viz6-sunburst",
+                                                                    config={
+                                                                        "displayModeBar": True,
+                                                                        "displaylogo": False,
+                                                                    },
+                                                                )
+                                                            ],
+                                                            className="viz-content",
+                                                        ),
+                                                    ],
+                                                    className="card viz-card-pro",
                                                 )
                                             ],
-                                            style={"padding": "16px"},
+                                            className="viz-col",
+                                        ),
+                                        
+                                        # RÉSEAU 3D à droite
+                                        html.Div(
+                                            [
+                                                html.Div(
+                                                    [
+                                                        html.Div(
+                                                            [
+                                                                html.Div("Réseau 3D de compétences", className="viz-header-title"),
+                                                                html.Div("Interconnexions", className="viz-header-subtitle"),
+                                                            ],
+                                                            className="viz-header",
+                                                        ),
+                                                        html.Div(
+                                                            [
+                                                                dcc.Graph(
+                                                                    id="viz8-network",
+                                                                    config={
+                                                                        "displayModeBar": True,
+                                                                        "displaylogo": False,
+                                                                        "modeBarButtonsToAdd": ['pan3d', 'zoom3d', 'orbitRotation', 'tableRotation'],
+                                                                    },
+                                                                )
+                                                            ],
+                                                            className="viz-content",
+                                                        ),
+                                                    ],
+                                                    className="card viz-card-pro",
+                                                )
+                                            ],
+                                            className="viz-col",
                                         ),
                                     ],
-                                    className="card network-card",
-                                    style={
-                                        "border": "2px solid #3b82f6",
-                                        "boxShadow": "0 8px 24px rgba(59, 130, 246, 0.2)",
-                                        "padding": "0",
-                                    },
+                                    className="viz-grid-professional",
                                 ),
                             ],
                             className="section",
@@ -1418,9 +1476,9 @@ def update_drilldown_viz1(
 )
 def update_stats(filtered_data_json):
     if filtered_data_json is None:
-        filtered_df = df
+        filtered_df = df.copy()
     else:
-        filtered_df = pd.read_json(filtered_data_json, orient="split")
+        filtered_df = pd.read_json(StringIO(filtered_data_json), orient="split")
         filtered_df["Competencies_List"] = filtered_df.apply(parse_competencies, axis=1)
     return viz7_statistics_dashboard(filtered_df)
 
@@ -1430,9 +1488,9 @@ def update_stats(filtered_data_json):
 )
 def update_viz2(filtered_data_json):
     if filtered_data_json is None:
-        filtered_df = df
+        filtered_df = df.copy()
     else:
-        filtered_df = pd.read_json(filtered_data_json, orient="split")
+        filtered_df = pd.read_json(StringIO(filtered_data_json), orient="split")
         filtered_df["Competencies_List"] = filtered_df.apply(parse_competencies, axis=1)
     return viz2_workload_radar(filtered_df)
 
@@ -1442,9 +1500,9 @@ def update_viz2(filtered_data_json):
 )
 def update_viz3(filtered_data_json):
     if filtered_data_json is None:
-        filtered_df = df
+        filtered_df = df.copy()
     else:
-        filtered_df = pd.read_json(filtered_data_json, orient="split")
+        filtered_df = pd.read_json(StringIO(filtered_data_json), orient="split")
         filtered_df["Competencies_List"] = filtered_df.apply(parse_competencies, axis=1)
     return viz3_competency_heatmap(filtered_df)
 
@@ -1454,9 +1512,9 @@ def update_viz3(filtered_data_json):
 )
 def update_viz4(filtered_data_json):
     if filtered_data_json is None:
-        filtered_df = df
+        filtered_df = df.copy()
     else:
-        filtered_df = pd.read_json(filtered_data_json, orient="split")
+        filtered_df = pd.read_json(StringIO(filtered_data_json), orient="split")
         filtered_df["Competencies_List"] = filtered_df.apply(parse_competencies, axis=1)
     return viz4_learning_flow(filtered_df)
 
@@ -1466,9 +1524,9 @@ def update_viz4(filtered_data_json):
 )
 def update_viz5(filtered_data_json):
     if filtered_data_json is None:
-        filtered_df = df
+        filtered_df = df.copy()
     else:
-        filtered_df = pd.read_json(filtered_data_json, orient="split")
+        filtered_df = pd.read_json(StringIO(filtered_data_json), orient="split")
         filtered_df["Competencies_List"] = filtered_df.apply(parse_competencies, axis=1)
     return viz5_critical_competencies(filtered_df)
 
@@ -1478,9 +1536,9 @@ def update_viz5(filtered_data_json):
 )
 def update_viz6(filtered_data_json):
     if filtered_data_json is None:
-        filtered_df = df
+        filtered_df = df.copy()
     else:
-        filtered_df = pd.read_json(filtered_data_json, orient="split")
+        filtered_df = pd.read_json(StringIO(filtered_data_json), orient="split")
         filtered_df["Competencies_List"] = filtered_df.apply(parse_competencies, axis=1)
     return create_sunburst_hierarchy(filtered_df)
 
